@@ -1,6 +1,6 @@
 ﻿namespace Netchain.Core;
 
-internal sealed class Block(int index, DateTime timestamp, string previousHash, int proof, LinkedList<Transaction> transactions)
+public sealed class Block(int index, DateTime timestamp, string previousHash, int proof, LinkedList<Transaction> transactions)
 {
     private readonly LinkedList<Transaction> _transactions = transactions;
 

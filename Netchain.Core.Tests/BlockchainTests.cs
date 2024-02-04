@@ -10,11 +10,12 @@ public class BlockchainTests
     }
 
     [Fact]
-    public void Given_NewBlockchain_Then_EmptyStateInitialized()
+    public void Given_NewBlockchain_Then_GenesisStateInitialized()
     {
         // Assert
         Assert.NotEqual(Guid.Empty, _blockchain.NodeId);
         Assert.Empty(_blockchain.Transactions);
+        Assert.Single(_blockchain.Blocks);
     }
 
     [Fact]
@@ -34,5 +35,20 @@ public class BlockchainTests
         Assert.Equal(amount, transaction.Value);
         Assert.Equal(senderId, transaction.Sender);
         Assert.Equal(recipientId, transaction.Recipient);
+    }
+
+    [Fact]
+    public void Given_ExistingBlockchain_When_Mine_Then_BlockIsAdded()
+    {
+        // Arrange
+        var oldCount = _blockchain.Blocks.Count;
+
+        // Act
+        var createdBlock = _blockchain.Mine();
+
+        //Assert
+        Assert.Empty(_blockchain.Transactions);
+        Assert.Equal(oldCount + 1, _blockchain.Blocks.Count);
+        Assert.Equal(oldCount, createdBlock.Index);
     }
 }
