@@ -1,3 +1,6 @@
+using System.Security.Cryptography;
+using System.Text;
+
 namespace Netchain.Core.Tests;
 
 public class BlockchainTests
@@ -50,5 +53,38 @@ public class BlockchainTests
         Assert.Empty(_blockchain.Transactions);
         Assert.Equal(oldCount + 1, _blockchain.Blocks.Count);
         Assert.Equal(oldCount, createdBlock.Index);
+    }
+
+    [Fact]
+    public void Given_ExistingBlockchain_When_Mine_Then_BlockIsAddedWithCorrectProof()
+    {
+        // Arrange
+        var lastBlock = _blockchain.Blocks.Last();
+
+        // Act
+        var createdBlock = _blockchain.Mine();
+
+        // Assert
+        Assert.True(IsValidProof(lastBlock.Proof, createdBlock.Proof, lastBlock.PreviousHash));
+    }
+
+    private bool IsValidProof(int lastProof, int proof, string previousHash)
+    {
+        string guess = $"{lastProof}{proof}{previousHash}";
+        string result = GetSha256(guess);
+        return result.StartsWith("00");
+    }
+
+    private static string GetSha256(string data)
+    {
+        var hashBuilder = new StringBuilder();
+
+        byte[] bytes = Encoding.Unicode.GetBytes(data);
+        byte[] hash = SHA256.HashData(bytes);
+
+        foreach (var x in hash)
+            hashBuilder.Append($"{x:x2}");
+
+        return hashBuilder.ToString();
     }
 }

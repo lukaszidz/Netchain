@@ -29,7 +29,8 @@ public sealed class Blockchain
 
     public CreatedBlock Mine()
     {
-        var proof = 1;
+        var lastBlock = _chain.Last();
+        var proof = CreateProofOfWork(lastBlock.Proof, lastBlock.PreviousHash);
         var block = CreateBlock(proof);
         return new CreatedBlock(block.Index, proof);
     }
@@ -41,6 +42,23 @@ public sealed class Blockchain
         _chain.AddFirst(block);
         return block;
     }
+
+    private int CreateProofOfWork(int lastProof, string previousHash)
+    {
+        int proof = 0;
+        while (!IsValidProof(lastProof, proof, previousHash))
+            proof++;
+
+        return proof;
+    }
+
+    private bool IsValidProof(int lastProof, int proof, string previousHash)
+    {
+        string guess = $"{lastProof}{proof}{previousHash}";
+        string result = GetSha256(guess);
+        return result.StartsWith("00");
+    }
+
     private static string GetHash(Block block) => GetSha256(JsonConvert.SerializeObject(block));
 
     private static string GetSha256(string data)
