@@ -1,6 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
-
 namespace Netchain.Core.Tests;
 
 public class BlockchainTests
@@ -65,26 +62,6 @@ public class BlockchainTests
         var createdBlock = _blockchain.Mine();
 
         // Assert
-        Assert.True(IsValidProof(lastBlock.Proof, createdBlock.Proof, lastBlock.PreviousHash));
-    }
-
-    private bool IsValidProof(int lastProof, int proof, string previousHash)
-    {
-        string guess = $"{lastProof}{proof}{previousHash}";
-        string result = GetSha256(guess);
-        return result.StartsWith("00");
-    }
-
-    private static string GetSha256(string data)
-    {
-        var hashBuilder = new StringBuilder();
-
-        byte[] bytes = Encoding.Unicode.GetBytes(data);
-        byte[] hash = SHA256.HashData(bytes);
-
-        foreach (var x in hash)
-            hashBuilder.Append($"{x:x2}");
-
-        return hashBuilder.ToString();
+        Assert.True(CryptoUtils.IsValidProof(lastBlock.Proof, createdBlock.Proof, lastBlock.PreviousHash));
     }
 }

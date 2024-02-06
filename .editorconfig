@@ -134,7 +134,7 @@ dotnet_diagnostic.CS1591.severity = silent
 
 # IDE0058: Expression value is never used
 dotnet_diagnostic.IDE0058.severity = silent
-csharp_using_directive_placement= inside_namespace:warning
+csharp_using_directive_placement= outside_namespace:warning
 
 # IDE0065: Misplaced using directive
 dotnet_diagnostic.IDE0065.severity = warning
