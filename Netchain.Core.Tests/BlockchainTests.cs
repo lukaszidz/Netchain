@@ -64,4 +64,20 @@ public class BlockchainTests
         // Assert
         Assert.True(CryptoUtils.IsValidProof(lastBlock.Proof, createdBlock.Proof, lastBlock.PreviousHash));
     }
+
+    [Fact]
+    public void Given_ExistingBlockchain_When_Mine_Then_TransactionsAreMovedToBlock()
+    {
+        // Arrange
+        _blockchain.CreateTransaction(Guid.NewGuid(), Guid.NewGuid(), 10);
+        _blockchain.CreateTransaction(Guid.NewGuid(), Guid.NewGuid(), 12);
+        var transactions = _blockchain.Transactions.Select(t => t.Id).ToList();
+
+        // Act
+        var createdBlock = _blockchain.Mine();
+
+        // Assert
+        Assert.NotEmpty(createdBlock.TransactionIds);
+        Assert.Equal(transactions, createdBlock.TransactionIds);
+    }
 }

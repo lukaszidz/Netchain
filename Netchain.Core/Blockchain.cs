@@ -28,15 +28,15 @@ public sealed class Blockchain
         var lastBlock = _chain.Last();
         var proof = CreateProofOfWork(lastBlock.Proof, lastBlock.PreviousHash);
         var block = CreateBlock(proof);
-        return new CreatedBlock(block.Index, proof);
+        _transactions.Clear();
+        return block;
     }
 
-    private Block CreateBlock(int proof)
+    private CreatedBlock CreateBlock(int proof)
     {
         var block = new Block(_chain.Count, DateTime.UtcNow, _chain.Count == 0 ? null : CryptoUtils.GetHash(_chain.First()), proof, _transactions);
-        _transactions.Clear();
         _chain.AddFirst(block);
-        return block;
+        return new CreatedBlock(block.Index, proof, block.Transactions.Select(t => t.Id).ToList());
     }
 
     private static int CreateProofOfWork(int lastProof, string previousHash)
