@@ -1,0 +1,6 @@
+@Netchain.Server_HostAddress = https://localhost:7020
+
+
+POST {{Netchain.Server_HostAddress}}/peers
+
+###
