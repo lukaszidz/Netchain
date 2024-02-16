@@ -6,36 +6,43 @@ namespace Netchain.Server;
 public sealed class Node
 {
     private readonly Blockchain _blockchain;
-    private readonly Dictionary<Guid, Peer> _peers;
+    private readonly Dictionary<string, Peer> _peers = [];
     private readonly NodeClient _nodeClient;
+    private readonly ILogger _logger;
 
     public Guid Id { get; } = Guid.NewGuid();
     public string Address { get; }
 
-    public Node(string address, Blockchain blockchain, NodeClient nodeClient)
+    public Node(string address, Blockchain blockchain, NodeClient nodeClient, ILogger<Node> logger)
     {
         _blockchain = blockchain;
         _nodeClient = nodeClient;
+        _logger = logger;
         Address = address;
     }
 
-    public async Task ConnectToPeers(IEnumerable<Peer> newPeers)
+    public void ConnectToPeers(IEnumerable<Peer> newPeers)
     {
         foreach (var peer in newPeers)
         {
-            if (!_peers.ContainsKey(peer.Id))
+            if (!_peers.ContainsKey(peer.Url))
             {
-                await NotifyPeer(peer);
-                GetLastBlock(peer);
-                GetTransactions(peer);
-                _peers[peer.Id] = peer;
+                _peers[peer.Url] = peer;
+                NotifyPeer(peer);
+                // GetLastBlock(peer);
+                // GetTransactions(peer);
+            }
+            else
+            {
+                _logger.LogInformation("The {SourceNode} already knows about the {TargetNode}", Address, peer.Url);
             }
         }
     }
 
-    private async Task NotifyPeer(Peer peer)
+    private void NotifyPeer(Peer peer)
     {
-        await _nodeClient.Notify(new Peer(Id, Address), peer);
+        _logger.LogInformation("Started notifying the peer {Url}", peer.Url);
+        _nodeClient.Notify(new Peer(Address), peer);
     }
 
     private void GetLastBlock(Peer peer)

@@ -16,7 +16,11 @@ builder.Services.AddSingleton(sp =>
 {
     var blockchain = sp.GetRequiredService<Blockchain>();
     var nodeClient = sp.GetRequiredService<NodeClient>();
-    return new Node(builder.Configuration["BaseUrl"], blockchain, nodeClient);
+    var logger = sp.GetRequiredService<ILogger<Node>>();
+
+    var node = new Node(Environment.GetEnvironmentVariable("BaseUrl"), blockchain, nodeClient, logger);
+    node.ConnectToPeers(Env.GetEnvironmentValues("Peers").Select(url => new Peer(url)));
+    return node;
 });
 
 var app = builder.Build();
@@ -28,8 +32,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app.MapPost("/peers", (Node node) =>
 {
     return Results.Ok(node.Address);
@@ -37,6 +39,3 @@ app.MapPost("/peers", (Node node) =>
 .WithOpenApi();
 
 app.Run();
-
-var blockchain = new Blockchain();
-var node = new Node(app.Urls.First(), blockchain, app.Services.GetRequiredService<NodeClient>());
