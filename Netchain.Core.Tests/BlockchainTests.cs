@@ -1,6 +1,6 @@
 namespace Netchain.Core.Tests;
 
-public class BlockchainTests
+public sealed class BlockchainTests
 {
     private readonly Blockchain _blockchain;
 

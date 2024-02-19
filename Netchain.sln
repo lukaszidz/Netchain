@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Netchain.Core.Tests", "Netc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Netchain.Server", "Netchain.Server\Netchain.Server.csproj", "{D7750683-DC9A-43D4-A238-6866651FC7AC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Netchain.Server.Tests", "Netchain.Server.Tests\Netchain.Server.Tests.csproj", "{4059EFAB-615B-4E78-B83F-5C5DB653A1F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{D7750683-DC9A-43D4-A238-6866651FC7AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7750683-DC9A-43D4-A238-6866651FC7AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7750683-DC9A-43D4-A238-6866651FC7AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4059EFAB-615B-4E78-B83F-5C5DB653A1F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4059EFAB-615B-4E78-B83F-5C5DB653A1F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4059EFAB-615B-4E78-B83F-5C5DB653A1F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4059EFAB-615B-4E78-B83F-5C5DB653A1F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

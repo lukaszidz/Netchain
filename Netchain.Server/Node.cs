@@ -10,6 +10,8 @@ public sealed class Node
     private readonly NodeClient _nodeClient;
     private readonly ILogger _logger;
 
+    public IEnumerable<Peer> Peers => _peers.Select(p => p.Value);
+
     public Guid Id { get; } = Guid.NewGuid();
     public string Address { get; }
 
