@@ -8,6 +8,7 @@ public sealed class Blockchain
     private readonly LinkedList<Block> _chain = new();
 
     public Guid NodeId { get; } = Guid.NewGuid();
+    public Block LastBlock => _chain.Last();
 
     public ICollection<Transaction> Transactions => _transactions;
     public ICollection<Block> Blocks => _chain;
@@ -25,8 +26,7 @@ public sealed class Blockchain
 
     public CreatedBlock Mine()
     {
-        var lastBlock = _chain.Last();
-        var proof = CreateProofOfWork(lastBlock.Proof, lastBlock.PreviousHash);
+        var proof = CreateProofOfWork(LastBlock.Proof, LastBlock.PreviousHash);
         var block = CreateBlock(proof);
         _transactions.Clear();
         return block;

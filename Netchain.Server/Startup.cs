@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Netchain.Core;
 using Netchain.Server.Client;
 
@@ -39,9 +40,18 @@ public class Startup
 
         app.UseEndpoints(e =>
         {
-            e.MapPost("/peers", (Node node) =>
+            e.MapGet("/blockchain/block/last", (Blockchain chain) =>
             {
-                return Results.Ok(node.Address);
+                return Results.Ok(chain.LastBlock);
+            });
+            e.MapGet("/node/peers", (Node node) =>
+            {
+                return Results.Ok(node.Peers);
+            });
+            e.MapPost("/node/peers", (Node node, [FromBody] Peer peer) =>
+            {
+                node.ConnectToPeers([peer]);
+                return Results.Ok();
             }).WithOpenApi();
         });
     }

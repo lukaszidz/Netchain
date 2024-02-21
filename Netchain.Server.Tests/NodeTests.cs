@@ -1,5 +1,7 @@
+using System.Text;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Newtonsoft.Json;
 
 namespace Netchain.Server.Tests;
 
@@ -29,12 +31,15 @@ public sealed class NodeTests : IDisposable
     [Fact]
     public async Task Initial_Test()
     {
-        var response1 = await _node1Client.PostAsync("/peers", new StringContent(""));
-        var response2 = await _node2Client.PostAsync("/peers", new StringContent(""));
-        var failing = await _node1Client.PostAsync("/peer", new StringContent(""));
+        // Arrange
+        var body = new StringContent(JsonConvert.SerializeObject(new Peer("http://localhost:8001")), Encoding.UTF8, "application/json");
+        var response1 = await _node1Client.PostAsync("/node/peers", body);
+        var response2 = await _node2Client.PostAsync("/node/peers", body);
+        var failing = await _node1Client.PostAsync("/node/peer", body);
 
         Assert.Equal(200, (int)response1.StatusCode);
         Assert.Equal(200, (int)response2.StatusCode);
         Assert.Equal(404, (int)failing.StatusCode);
+
     }
 }

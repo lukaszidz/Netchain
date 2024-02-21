@@ -23,7 +23,7 @@ public sealed class Node
         Address = address;
     }
 
-    public void ConnectToPeers(IEnumerable<Peer> newPeers)
+    public async void ConnectToPeers(IEnumerable<Peer> newPeers)
     {
         foreach (var peer in newPeers)
         {
@@ -31,7 +31,8 @@ public sealed class Node
             {
                 _peers[peer.Url] = peer;
                 NotifyPeer(peer);
-                // GetLastBlock(peer);
+                var lastBlock = await _nodeClient.GetLastBlock(peer);
+                //VerifyReceivedBlock(lastBlock);
                 // GetTransactions(peer);
             }
             else
@@ -43,11 +44,10 @@ public sealed class Node
 
     private void NotifyPeer(Peer peer)
     {
-        _logger.LogInformation("Started notifying the peer {Url}", peer.Url);
         _nodeClient.Notify(new Peer(Address), peer);
     }
 
-    private void GetLastBlock(Peer peer)
+    private void VerifyReceivedBlock(Block block)
     {
         throw new NotImplementedException();
     }

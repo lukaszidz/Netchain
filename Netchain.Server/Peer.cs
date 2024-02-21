@@ -1,6 +1,3 @@
 namespace Netchain.Server;
 
-public readonly struct Peer(string url)
-{
-    public string Url { get; } = url;
-}
+public sealed record Peer(string Url);
