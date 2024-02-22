@@ -1,5 +1,3 @@
-using Netchain.Core.Output;
-
 namespace Netchain.Core;
 
 public sealed class Blockchain
@@ -24,7 +22,7 @@ public sealed class Blockchain
         _transactions.AddLast(transaction);
     }
 
-    public CreatedBlock Mine()
+    public Block Mine()
     {
         var proof = CreateProofOfWork(LastBlock.Proof, LastBlock.PreviousHash);
         var block = CreateBlock(proof);
@@ -32,11 +30,11 @@ public sealed class Blockchain
         return block;
     }
 
-    private CreatedBlock CreateBlock(int proof)
+    private Block CreateBlock(int proof)
     {
-        var block = new Block(_chain.Count, DateTime.UtcNow, _chain.Count == 0 ? null : CryptoUtils.GetHash(_chain.First()), proof, _transactions);
-        _chain.AddFirst(block);
-        return new CreatedBlock(block.Index, proof, block.Transactions.Select(t => t.Id).ToList());
+        var block = new Block(_chain.Count, DateTime.UtcNow, _chain.Count == 0 ? null : CryptoUtils.GetHash(_chain.Last()), proof, _transactions);
+        _chain.AddLast(block);
+        return block;
     }
 
     private static int CreateProofOfWork(int lastProof, string previousHash)

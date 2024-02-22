@@ -77,7 +77,7 @@ public sealed class BlockchainTests
         var createdBlock = _blockchain.Mine();
 
         // Assert
-        Assert.NotEmpty(createdBlock.TransactionIds);
-        Assert.Equal(transactions, createdBlock.TransactionIds);
+        Assert.NotEmpty(createdBlock.Transactions);
+        Assert.Equal(transactions, createdBlock.Transactions.Select(t => t.Id));
     }
 }
