@@ -41,14 +41,14 @@ public sealed class BlockchainTests
     public void Given_ExistingBlockchain_When_Mine_Then_BlockIsAdded()
     {
         // Arrange
-        var oldCount = _blockchain.Blocks.Count;
+        var oldCount = _blockchain.Blocks.Count();
 
         // Act
         var createdBlock = _blockchain.Mine();
 
         //Assert
         Assert.Empty(_blockchain.Transactions);
-        Assert.Equal(oldCount + 1, _blockchain.Blocks.Count);
+        Assert.Equal(oldCount + 1, _blockchain.Blocks.Count());
         Assert.Equal(oldCount, createdBlock.Index);
     }
 

@@ -2,14 +2,14 @@ namespace Netchain.Core;
 
 public sealed class Blockchain
 {
-    private readonly LinkedList<Transaction> _transactions = new();
+    private LinkedList<Transaction> _transactions = new();
     private readonly LinkedList<Block> _chain = new();
 
     public Guid NodeId { get; } = Guid.NewGuid();
     public Block LastBlock => _chain.Last();
 
-    public ICollection<Transaction> Transactions => _transactions;
-    public ICollection<Block> Blocks => _chain;
+    public IEnumerable<Transaction> Transactions => _transactions;
+    public IEnumerable<Block> Blocks => _chain;
 
     public Blockchain()
     {
@@ -26,14 +26,19 @@ public sealed class Blockchain
     {
         var proof = CreateProofOfWork(LastBlock.Proof, LastBlock.PreviousHash);
         var block = CreateBlock(proof);
-        _transactions.Clear();
+        _transactions = new();
         return block;
+    }
+
+    public void Append(Block block)
+    {
+        _chain.AddLast(block);
     }
 
     private Block CreateBlock(int proof)
     {
         var block = new Block(_chain.Count, DateTime.UtcNow, _chain.Count == 0 ? null : CryptoUtils.GetHash(_chain.Last()), proof, _transactions);
-        _chain.AddLast(block);
+        Append(block);
         return block;
     }
 

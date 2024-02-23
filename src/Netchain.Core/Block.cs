@@ -6,24 +6,19 @@ public sealed class Block
 
     public Block(int index, DateTime timestamp, string previousHash, int proof, LinkedList<Transaction> transactions)
     {
+        _transactions = transactions;
         Index = index;
         Timestamp = timestamp;
         Proof = proof;
         PreviousHash = previousHash;
-        AddTransactions(transactions);
+        Hash = CryptoUtils.GetHash(this);
     }
 
     public int Index { get; }
     public DateTime Timestamp { get; }
     public int Proof { get; }
+    public string Hash { get; }
     public string PreviousHash { get; }
-    public IEnumerable<Transaction> Transactions => _transactions;
 
-    private void AddTransactions(LinkedList<Transaction> transactions)
-    {
-        foreach (var transaction in transactions)
-        {
-            _transactions.AddLast(transaction);
-        }
-    }
+    public IEnumerable<Transaction> Transactions => _transactions;
 }
