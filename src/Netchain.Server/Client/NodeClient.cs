@@ -26,14 +26,24 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
         });
     }
 
-    public async Task<Block> GetLastBlock(Peer peer)
+    public Task<Block> GetLastBlock(Peer peer)
     {
         _logger.LogInformation("Getting the latest block of the peer {Url}", peer.Url);
+        return Get<Block>($"{peer.Url}/blockchain/block/last");
+    }
 
-        var response = await _httpClient.GetAsync($"{peer.Url}/blockchain/block/last");
+    public Task<IEnumerable<Transaction>> GetTransactions(Peer peer)
+    {
+        _logger.LogInformation("Getting the transactions of the peer {Url}", peer.Url);
+        return Get<IEnumerable<Transaction>>($"{peer.Url}/blockchain/transactions");
+    }
+
+    private async Task<T> Get<T>(string url)
+    {
+        var response = await _httpClient.GetAsync(url);
         if (response.IsSuccessStatusCode)
         {
-            return JsonConvert.DeserializeObject<Block>(await response.Content.ReadAsStringAsync());
+            return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
         }
         throw new HttpRequestException($"Request failed with status code {response}");
     }

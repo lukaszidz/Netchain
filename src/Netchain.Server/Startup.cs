@@ -44,6 +44,10 @@ public class Startup
             {
                 return Results.Ok(chain.LastBlock);
             });
+            e.MapGet("/blockchain/transactions", (Blockchain chain) =>
+            {
+                return Results.Ok(chain.Transactions);
+            });
             e.MapGet("/node/peers", (Node node) =>
             {
                 return Results.Ok(node.Peers);

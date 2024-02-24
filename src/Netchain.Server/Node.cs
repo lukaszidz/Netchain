@@ -31,9 +31,8 @@ public sealed class Node
             {
                 _peers[peer.Url] = peer;
                 NotifyPeer(peer);
-                var lastBlock = await _nodeClient.GetLastBlock(peer);
-                MergeReceivedBlock(lastBlock);
-                // GetTransactions(peer);
+                await MergeLastBlock(peer);
+                await MergeTransactions(peer);
             }
             else
             {
@@ -47,23 +46,32 @@ public sealed class Node
         _nodeClient.Notify(new Peer(Address), peer);
     }
 
-    private void MergeReceivedBlock(Block receivedBlock)
+    private async Task MergeLastBlock(Peer peer)
     {
-        if (receivedBlock.Index <= _blockchain.LastBlock.Index)
+        var lastBlock = await _nodeClient.GetLastBlock(peer);
+        if (lastBlock.Index <= _blockchain.LastBlock.Index)
         {
-            _logger.LogDebug("Received blockchain is shorter than the current blockchain. No actions required.");
+            _logger.LogInformation("Received blockchain is shorter than the current blockchain. No actions required");
             return;
         }
 
-        if (_blockchain.LastBlock.Hash.Equals(receivedBlock.PreviousHash))
+        if (_blockchain.LastBlock.Hash.Equals(lastBlock.PreviousHash))
         {
-            _blockchain.Append(receivedBlock);
-            _logger.LogDebug("Received block {BlockIndex} has been added to the blockchain.", receivedBlock.Index);
+            _blockchain.AppendBlock(lastBlock);
+            _logger.LogInformation("Received block {BlockIndex} has been added to the blockchain", lastBlock.Index);
         }
     }
 
-    private void GetTransactions(Peer peer)
+    private async Task MergeTransactions(Peer peer)
     {
-        throw new NotImplementedException();
+        var transactions = await _nodeClient.GetTransactions(peer);
+        foreach (var transaction in transactions)
+        {
+            if (!_blockchain.Transactions.Contains(transaction))
+            {
+                _logger.LogInformation("Received transaction {TransactionId} has beed added to the blockchain", transaction.Id);
+                _blockchain.AppendTransaction(transaction);
+            }
+        }
     }
 }

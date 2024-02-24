@@ -2,9 +2,9 @@
 
 public sealed class Block
 {
-    private readonly LinkedList<Transaction> _transactions = new();
+    private readonly HashSet<Transaction> _transactions = new();
 
-    public Block(int index, DateTime timestamp, string previousHash, int proof, LinkedList<Transaction> transactions)
+    public Block(int index, DateTime timestamp, string previousHash, int proof, HashSet<Transaction> transactions)
     {
         _transactions = transactions;
         Index = index;
