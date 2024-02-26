@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Netchain.Core;
 
@@ -13,7 +13,7 @@ public static class CryptoUtils
         return result.StartsWith("00");
     }
 
-    public static string GetHash(Block block) => GetSha256(JsonConvert.SerializeObject(new { block.Index, block.Timestamp, block.PreviousHash, block.Proof }));
+    public static string GetHash(Block block) => GetSha256(JsonSerializer.Serialize(new { block.Index, block.Timestamp, block.PreviousHash, block.Proof }));
 
     public static string GetSha256(string data)
     {

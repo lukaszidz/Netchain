@@ -1,23 +1,33 @@
-using System.Text;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
-using Newtonsoft.Json;
 
 namespace Netchain.Server.Tests.Api;
 
-internal static class TestHttp
+public sealed class TestHttp : IDisposable
 {
-    public static async Task<T> Get<T>(string uri)
+    private readonly TestServer _server;
+
+    public TestHttp()
     {
-        using var server = new TestServer(new WebHostBuilder().UseStartup<Startup>());
-        using var client = server.CreateClient();
-        var response = await client.GetAsync(uri);
-        return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
+        _server = new TestServer(new WebHostBuilder().UseStartup<Startup>());
     }
-    public static async Task<HttpResponseMessage> Post(string uri, object body)
+
+    public async Task<T> Get<T>(string uri)
     {
-        using var server = new TestServer(new WebHostBuilder().UseStartup<Startup>());
-        using var client = server.CreateClient();
-        return await client.PostAsync(uri, new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json"));
+        using var client = _server.CreateClient();
+        var response = await client.GetAsync(uri);
+        return await client.GetFromJsonAsync<T>(uri);
+    }
+
+    public async Task<HttpResponseMessage> Post(string uri, object body)
+    {
+        using var client = _server.CreateClient();
+        return await client.PostAsJsonAsync(uri, body);
+    }
+
+    public void Dispose()
+    {
+        _server.Dispose();
     }
 }

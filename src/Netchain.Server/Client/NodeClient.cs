@@ -1,6 +1,6 @@
 using System.Text;
+using System.Text.Json;
 using Netchain.Core;
-using Newtonsoft.Json;
 
 namespace Netchain.Server.Client;
 
@@ -17,7 +17,7 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
         {
             try
             {
-                await _httpClient.PostAsync($"{target.Url}/node/peers", new StringContent(JsonConvert.SerializeObject(source), Encoding.UTF8, @"application/json"));
+                await _httpClient.PostAsync($"{target.Url}/node/peers", new StringContent(JsonSerializer.Serialize(source), Encoding.UTF8, @"application/json"));
             }
             catch (Exception ex)
             {
@@ -38,13 +38,5 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
         return Get<IEnumerable<Transaction>>($"{peer.Url}/blockchain/transactions");
     }
 
-    private async Task<T> Get<T>(string url)
-    {
-        var response = await _httpClient.GetAsync(url);
-        if (response.IsSuccessStatusCode)
-        {
-            return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
-        }
-        throw new HttpRequestException($"Request failed with status code {response}");
-    }
+    private async Task<T> Get<T>(string url) => await _httpClient.GetFromJsonAsync<T>(url);
 }
