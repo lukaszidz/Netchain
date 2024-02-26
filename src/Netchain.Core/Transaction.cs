@@ -1,8 +1,8 @@
 namespace Netchain.Core;
 
-public readonly struct Transaction(int value, Guid sender, Guid recipient)
+public sealed class Transaction(Guid id, int value, Guid sender, Guid recipient)
 {
-    public Guid Id { get; } = Guid.NewGuid();
+    public Guid Id { get; } = id;
     public int Value { get; } = value;
     public Guid Sender { get; } = sender;
     public Guid Recipient { get; } = recipient;

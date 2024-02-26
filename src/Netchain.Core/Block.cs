@@ -15,10 +15,9 @@ public sealed class Block
     }
 
     public int Index { get; }
-    public DateTime Timestamp { get; }
+    public DateTime? Timestamp { get; }
     public int Proof { get; }
     public string Hash { get; }
     public string PreviousHash { get; }
-
     public IEnumerable<Transaction> Transactions => _transactions;
 }

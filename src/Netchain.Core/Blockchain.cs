@@ -26,12 +26,16 @@ public sealed class Blockchain
 
     public void CreateTransaction(Guid sender, Guid recipient, int amount)
     {
-        var transaction = new Transaction(amount, sender, recipient);
+        var transaction = new Transaction(Guid.NewGuid(), amount, sender, recipient);
         AppendTransaction(transaction);
     }
 
     public void AppendTransaction(Transaction transaction)
     {
+        if (_transactions.Contains(transaction))
+        {
+            throw new ArgumentException(string.Format("Blockchain already contains the transaction {0}", transaction.Id));
+        }
         _transactions.Add(transaction);
     }
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Netchain.Core;
 using Netchain.Server.Client;
+using Netchain.Server.Response;
 
 namespace Netchain.Server;
 
@@ -42,11 +43,25 @@ public class Startup
         {
             e.MapGet("/blockchain/block/last", (Blockchain chain) =>
             {
-                return Results.Ok(chain.LastBlock);
+                var lastBlock = chain.LastBlock;
+                return Results.Ok(new BlockResponse
+                {
+                    Index = lastBlock.Index,
+                    Timestamp = lastBlock.Timestamp,
+                    Proof = lastBlock.Proof,
+                    PreviousHash = lastBlock.PreviousHash,
+                    Hash = lastBlock.Hash,
+                    Transactions = lastBlock.Transactions
+                });
             });
             e.MapGet("/blockchain/transactions", (Blockchain chain) =>
             {
                 return Results.Ok(chain.Transactions);
+            });
+            e.MapPost("/blockchain/transactions", (Blockchain chain, [FromBody] Transaction transaction) =>
+            {
+                chain.AppendTransaction(transaction);
+                return Results.Created();
             });
             e.MapGet("/node/peers", (Node node) =>
             {
@@ -56,7 +71,7 @@ public class Startup
             {
                 node.ConnectToPeers([peer]);
                 return Results.Ok();
-            }).WithOpenApi();
+            });
         });
     }
 }
