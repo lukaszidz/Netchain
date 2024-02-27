@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Netchain.Core;
 using Netchain.Server.Client;
-using Netchain.Server.Response;
+using Netchain.Server.Constants;
+using Netchain.Server.Responses;
 
 namespace Netchain.Server;
 
@@ -41,7 +42,7 @@ public class Startup
 
         app.UseEndpoints(e =>
         {
-            e.MapGet("/blockchain/block/last", (Blockchain chain) =>
+            e.MapGet(WebRoutes.LastBlock, (Blockchain chain) =>
             {
                 var lastBlock = chain.LastBlock;
                 return Results.Ok(new BlockResponse
@@ -54,20 +55,20 @@ public class Startup
                     Transactions = lastBlock.Transactions
                 });
             });
-            e.MapGet("/blockchain/transactions", (Blockchain chain) =>
+            e.MapGet(WebRoutes.Transactions, (Blockchain chain) =>
             {
                 return Results.Ok(chain.Transactions);
             });
-            e.MapPost("/blockchain/transactions", (Blockchain chain, [FromBody] Transaction transaction) =>
+            e.MapPost(WebRoutes.Transactions, (Blockchain chain, [FromBody] Transaction transaction) =>
             {
                 chain.AppendTransaction(transaction);
                 return Results.Created();
             });
-            e.MapGet("/node/peers", (Node node) =>
+            e.MapGet(WebRoutes.Peers, (Node node) =>
             {
                 return Results.Ok(node.Peers);
             });
-            e.MapPost("/node/peers", (Node node, [FromBody] Peer peer) =>
+            e.MapPost(WebRoutes.Peers, (Node node, [FromBody] Peer peer) =>
             {
                 node.ConnectToPeers([peer]);
                 return Results.Ok();

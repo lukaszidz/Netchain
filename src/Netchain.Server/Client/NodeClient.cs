@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Netchain.Core;
+using Netchain.Server.Constants;
 
 namespace Netchain.Server.Client;
 
@@ -17,7 +18,7 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
         {
             try
             {
-                await _httpClient.PostAsync($"{target.Url}/node/peers", new StringContent(JsonSerializer.Serialize(source), Encoding.UTF8, @"application/json"));
+                await _httpClient.PostAsync($"{target.Url}/{WebRoutes.Peers}", new StringContent(JsonSerializer.Serialize(source), Encoding.UTF8, @"application/json"));
             }
             catch (Exception ex)
             {
@@ -29,13 +30,13 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
     public Task<Block> GetLastBlock(Peer peer)
     {
         _logger.LogInformation("Getting the latest block of the peer {Url}", peer.Url);
-        return Get<Block>($"{peer.Url}/blockchain/block/last");
+        return Get<Block>($"{peer.Url}/{WebRoutes.LastBlock}");
     }
 
     public Task<IEnumerable<Transaction>> GetTransactions(Peer peer)
     {
         _logger.LogInformation("Getting the transactions of the peer {Url}", peer.Url);
-        return Get<IEnumerable<Transaction>>($"{peer.Url}/blockchain/transactions");
+        return Get<IEnumerable<Transaction>>($"{peer.Url}/{WebRoutes.Transactions}");
     }
 
     private async Task<T> Get<T>(string url) => await _httpClient.GetFromJsonAsync<T>(url);

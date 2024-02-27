@@ -1,6 +1,6 @@
 using Netchain.Core;
 
-namespace Netchain.Server.Response;
+namespace Netchain.Server.Responses;
 
 public sealed class BlockResponse
 {
