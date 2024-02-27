@@ -26,6 +26,8 @@ public sealed class TestHttp : IDisposable
         return await client.PostAsJsonAsync(uri, body);
     }
 
+    public Task<HttpResponseMessage> Post(string uri) => Post(uri, default);
+
     public void Dispose()
     {
         _server.Dispose();

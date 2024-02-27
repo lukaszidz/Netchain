@@ -55,9 +55,21 @@ public class Startup
                     Transactions = lastBlock.Transactions
                 });
             });
+            e.MapPost(WebRoutes.Mine, (Blockchain chain) =>
+            {
+                chain.Mine();
+                return Results.Created();
+            });
             e.MapGet(WebRoutes.Transactions, (Blockchain chain) =>
             {
-                return Results.Ok(chain.Transactions);
+                var transactions = chain.Transactions.Select(t => new TransactionResponse
+                {
+                    Id = t.Id,
+                    Value = t.Value,
+                    Sender = t.Sender,
+                    Recipient = t.Recipient
+                });
+                return Results.Ok(transactions);
             });
             e.MapPost(WebRoutes.Transactions, (Blockchain chain, [FromBody] Transaction transaction) =>
             {

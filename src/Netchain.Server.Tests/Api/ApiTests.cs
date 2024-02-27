@@ -15,7 +15,7 @@ public sealed class ApiTests : IDisposable
     }
 
     [Fact]
-    public async Task Given_NewBlockchain_When_LastBlock_Then_ReturnGenesis()
+    public async Task Given_NewBlockchain_When_GetLastBlock_Then_ReturnGenesis()
     {
         // Arrange & Act
         var block = await _testHttp.Get<BlockResponse>(WebRoutes.LastBlock);
@@ -31,7 +31,7 @@ public sealed class ApiTests : IDisposable
     public async Task Given_NewBlockchain_When_GetTransactions_Then_ReturnEmptyTransactions()
     {
         // Arrange & Act
-        var transactions = await _testHttp.Get<IEnumerable<Transaction>>(WebRoutes.Transactions);
+        var transactions = await _testHttp.Get<IEnumerable<TransactionResponse>>(WebRoutes.Transactions);
 
         // Assert
         Assert.Empty(transactions);
@@ -48,9 +48,26 @@ public sealed class ApiTests : IDisposable
 
         // Assert
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        var transactions = await _testHttp.Get<IEnumerable<Transaction>>(WebRoutes.Transactions);
+        var transactions = await _testHttp.Get<IEnumerable<TransactionResponse>>(WebRoutes.Transactions);
         Assert.Single(transactions);
-        Assert.Contains(transaction, transactions);
+        Assert.Contains(transaction.Id, transactions.Select(t => t.Id));
+    }
+
+    [Fact]
+    public async Task Given_AnyBlockchain_When_PostMine_Then_BlockMined()
+    {
+        // Arrange 
+        var transaction = new Transaction(Guid.NewGuid(), 12, Guid.NewGuid(), Guid.NewGuid());
+        await _testHttp.Post(WebRoutes.Transactions, transaction);
+
+        // Act
+        await _testHttp.Post(WebRoutes.Mine);
+
+        // Assert
+        var lastBlock = await _testHttp.Get<BlockResponse>(WebRoutes.LastBlock);
+        Assert.NotNull(lastBlock);
+        Assert.Equal(1, lastBlock.Index);
+        Assert.Single(lastBlock.Transactions);
     }
 
     [Fact]

@@ -1,5 +1,3 @@
-using System.Text;
-using System.Text.Json;
 using Netchain.Core;
 using Netchain.Server.Constants;
 
@@ -18,7 +16,7 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
         {
             try
             {
-                await _httpClient.PostAsync($"{target.Url}/{WebRoutes.Peers}", new StringContent(JsonSerializer.Serialize(source), Encoding.UTF8, @"application/json"));
+                await Post($"{target.Url}/{WebRoutes.Peers}", source);
             }
             catch (Exception ex)
             {
@@ -40,4 +38,5 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
     }
 
     private async Task<T> Get<T>(string url) => await _httpClient.GetFromJsonAsync<T>(url);
+    private async Task Post<T>(string url, T body) => await _httpClient.PostAsJsonAsync(url, body);
 }
