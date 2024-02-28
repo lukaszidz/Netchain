@@ -1,4 +1,5 @@
 using Netchain.Core;
+using Netchain.Core.Events;
 using Netchain.Server.Client;
 
 namespace Netchain.Server;
@@ -21,6 +22,11 @@ public sealed class Node
         _nodeClient = nodeClient;
         _logger = logger;
         Address = address;
+        SubscribeBlockchain();
+    }
+
+    public void HandleNewBlock(object sender, BlockAdded e)
+    {
     }
 
     public async void ConnectToPeers(IEnumerable<Peer> newPeers)
@@ -39,6 +45,11 @@ public sealed class Node
                 _logger.LogInformation("The {SourceNode} already knows about the {TargetNode}", Address, peer.Url);
             }
         }
+    }
+
+    private void SubscribeBlockchain()
+    {
+        _blockchain.BlockAdded += HandleNewBlock;
     }
 
     private void NotifyPeer(Peer peer)

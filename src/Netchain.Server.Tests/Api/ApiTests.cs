@@ -38,7 +38,7 @@ public sealed class ApiTests : IDisposable
     }
 
     [Fact]
-    public async Task Given_ExistingBlockchain_When_PostTransaction_Then_TransactionAdded()
+    public async Task Given_AnyBlockchain_When_PostTransaction_Then_TransactionAdded()
     {
         // Arrange
         var transaction = new Transaction(Guid.NewGuid(), 12, Guid.NewGuid(), Guid.NewGuid());
