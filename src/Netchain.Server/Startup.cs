@@ -55,6 +55,11 @@ public class Startup
                     Transactions = lastBlock.Transactions
                 });
             });
+            e.MapPut(WebRoutes.LastBlock, (Node node, [FromBody] Block block) =>
+            {
+                node.MergeBlock(block);
+                return Results.Ok();
+            });
             e.MapPost(WebRoutes.Mine, (Blockchain chain) =>
             {
                 chain.Mine();

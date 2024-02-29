@@ -25,10 +25,6 @@ public sealed class Node
         SubscribeBlockchain();
     }
 
-    public void HandleNewBlock(object sender, BlockAdded e)
-    {
-    }
-
     public async void ConnectToPeers(IEnumerable<Peer> newPeers)
     {
         foreach (var peer in newPeers)
@@ -37,8 +33,8 @@ public sealed class Node
             {
                 _peers[peer.Url] = peer;
                 NotifyPeer(peer);
-                await MergeLastBlock(peer);
-                await MergeTransactions(peer);
+                await MergePeerLastBlock(peer);
+                await MergePeerTransactions(peer);
             }
             else
             {
@@ -47,9 +43,28 @@ public sealed class Node
         }
     }
 
+    public void MergeBlock(Block block)
+    {
+        if (block.Index <= _blockchain.LastBlock.Index)
+        {
+            _logger.LogInformation("Received blockchain is shorter than the current blockchain. No actions required");
+            return;
+        }
+
+        if (_blockchain.LastBlock.Hash.Equals(block.PreviousHash))
+        {
+            _blockchain.AppendBlock(block);
+            _logger.LogInformation("Received block {BlockIndex} has been added to the blockchain", block.Index);
+        };
+    }
+
     private void SubscribeBlockchain()
     {
-        _blockchain.BlockAdded += HandleNewBlock;
+        _blockchain.BlockAdded += PublishLastBlock;
+    }
+
+    private void PublishLastBlock(object sender, BlockAdded e)
+    {
     }
 
     private void NotifyPeer(Peer peer)
@@ -57,23 +72,13 @@ public sealed class Node
         _nodeClient.Notify(new Peer(Address), peer);
     }
 
-    private async Task MergeLastBlock(Peer peer)
+    private async Task MergePeerLastBlock(Peer peer)
     {
         var lastBlock = await _nodeClient.GetLastBlock(peer);
-        if (lastBlock.Index <= _blockchain.LastBlock.Index)
-        {
-            _logger.LogInformation("Received blockchain is shorter than the current blockchain. No actions required");
-            return;
-        }
-
-        if (_blockchain.LastBlock.Hash.Equals(lastBlock.PreviousHash))
-        {
-            _blockchain.AppendBlock(lastBlock);
-            _logger.LogInformation("Received block {BlockIndex} has been added to the blockchain", lastBlock.Index);
-        }
+        MergeBlock(lastBlock);
     }
 
-    private async Task MergeTransactions(Peer peer)
+    private async Task MergePeerTransactions(Peer peer)
     {
         var transactions = await _nodeClient.GetTransactions(peer);
         foreach (var transaction in transactions)
