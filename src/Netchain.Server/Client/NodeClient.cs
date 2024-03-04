@@ -31,6 +31,12 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
         return Get<Block>($"{peer.Url}/{WebRoutes.LastBlock}");
     }
 
+    public Task UpdateLastBlock(Peer peer, Block block)
+    {
+        _logger.LogInformation("Updating the latest block for the peer {Url}", peer.Url);
+        return Put($"{peer.Url}/{WebRoutes.LastBlock}", block);
+    }
+
     public Task<IEnumerable<Transaction>> GetTransactions(Peer peer)
     {
         _logger.LogInformation("Getting the transactions of the peer {Url}", peer.Url);
@@ -39,4 +45,5 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
 
     private async Task<T> Get<T>(string url) => await _httpClient.GetFromJsonAsync<T>(url);
     private async Task Post<T>(string url, T body) => await _httpClient.PostAsJsonAsync(url, body);
+    private async Task Put<T>(string url, T body) => await _httpClient.PutAsJsonAsync(url, body);
 }

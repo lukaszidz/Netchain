@@ -43,7 +43,7 @@ public sealed class Node
         }
     }
 
-    public void MergeBlock(Block block)
+    public async Task MergeBlock(Block block)
     {
         if (block.Index <= _blockchain.LastBlock.Index)
         {
@@ -53,7 +53,7 @@ public sealed class Node
 
         if (_blockchain.LastBlock.Hash.Equals(block.PreviousHash))
         {
-            _blockchain.AppendBlock(block);
+            await _blockchain.AppendBlock(block);
             _logger.LogInformation("Received block {BlockIndex} has been added to the blockchain", block.Index);
         };
     }
@@ -63,8 +63,10 @@ public sealed class Node
         _blockchain.BlockAdded += PublishLastBlock;
     }
 
-    private void PublishLastBlock(object sender, BlockAdded e)
+    private async Task PublishLastBlock(object sender, BlockAdded e)
     {
+        var tasks = Peers.Select(p => _nodeClient.UpdateLastBlock(p, e.Block));
+        await Task.WhenAll(tasks);
     }
 
     private void NotifyPeer(Peer peer)

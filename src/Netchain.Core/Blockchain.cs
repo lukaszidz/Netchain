@@ -13,7 +13,7 @@ public sealed class Blockchain
     public IEnumerable<Transaction> Transactions => _transactions;
     public IEnumerable<Block> Blocks => _chain;
 
-    public event EventHandler<BlockAdded> BlockAdded;
+    public event AsyncEventHandler<BlockAdded> BlockAdded;
 
     public Blockchain()
     {
@@ -43,10 +43,10 @@ public sealed class Blockchain
         _transactions.Add(transaction);
     }
 
-    public void AppendBlock(Block block)
+    public async Task AppendBlock(Block block)
     {
         _chain.AddLast(block);
-        BlockAdded?.Invoke(this, new BlockAdded(block));
+        await BlockAdded?.Invoke(this, new BlockAdded(block));
     }
 
     private Block CreateBlock(int proof)
