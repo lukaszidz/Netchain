@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Netchain.Core;
 using Netchain.Server.Client;
 using Netchain.Server.Constants;
+using Netchain.Server.Requests;
 using Netchain.Server.Responses;
 
 namespace Netchain.Server;
@@ -54,6 +55,11 @@ public class Startup
                     Hash = lastBlock.Hash,
                     Transactions = lastBlock.Transactions
                 });
+            });
+            e.MapPut(WebRoutes.LastBlock, (Node node, [FromBody] AddBlockRequest block) =>
+            {
+                node.MergeBlock(new Block(block.Index, block.Timestamp, block.PreviousHash, block.Proof, block.Transactions));
+                return Results.Ok();
             });
             e.MapPost(WebRoutes.Mine, (Blockchain chain) =>
             {

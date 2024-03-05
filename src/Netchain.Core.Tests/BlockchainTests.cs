@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Logging;
+using Moq;
+
 namespace Netchain.Core.Tests;
 
 public sealed class BlockchainTests
@@ -6,7 +9,8 @@ public sealed class BlockchainTests
 
     public BlockchainTests()
     {
-        _blockchain = new Blockchain();
+        var logger = new Mock<ILogger<Blockchain>>();
+        _blockchain = new Blockchain(logger.Object);
     }
 
     [Fact]

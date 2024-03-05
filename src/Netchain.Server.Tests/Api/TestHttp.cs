@@ -28,6 +28,12 @@ public sealed class TestHttp : IDisposable
 
     public Task<HttpResponseMessage> Post(string uri) => Post(uri, default);
 
+    public async Task<HttpResponseMessage> Put(string uri, object body)
+    {
+        using var client = _server.CreateClient();
+        return await client.PutAsJsonAsync(uri, body);
+    }
+
     public void Dispose()
     {
         _server.Dispose();

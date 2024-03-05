@@ -1,9 +1,13 @@
+using Microsoft.Extensions.Logging;
+using Netchain.Core.Events;
+
 namespace Netchain.Core;
 
 public sealed class Blockchain
 {
     private HashSet<Transaction> _transactions = new();
     private readonly LinkedList<Block> _chain = new();
+    private readonly ILogger<Blockchain> _logger;
 
     public Guid NodeId { get; } = Guid.NewGuid();
     public Block LastBlock => _chain.Last();
@@ -11,8 +15,11 @@ public sealed class Blockchain
     public IEnumerable<Transaction> Transactions => _transactions;
     public IEnumerable<Block> Blocks => _chain;
 
-    public Blockchain()
+    public event AsyncEventHandler<BlockAdded> BlockAdded;
+
+    public Blockchain(ILogger<Blockchain> logger)
     {
+        _logger = logger;
         CreateBlock(0);
     }
 
@@ -22,6 +29,21 @@ public sealed class Blockchain
         var block = CreateBlock(proof);
         _transactions = new();
         return block;
+    }
+
+    public void MergeBlock(Block block)
+    {
+        if (block.Index <= LastBlock.Index)
+        {
+            _logger.LogInformation("Received blockchain is shorter than the current blockchain. No actions required");
+            return;
+        }
+
+        if (LastBlock.Hash.Equals(block.PreviousHash))
+        {
+            AppendBlock(block);
+            _logger.LogInformation("Received block {BlockIndex} has been added to the blockchain", block.Index);
+        };
     }
 
     public void CreateTransaction(Guid sender, Guid recipient, int amount)
@@ -42,6 +64,7 @@ public sealed class Blockchain
     public void AppendBlock(Block block)
     {
         _chain.AddLast(block);
+        BlockAdded?.Invoke(this, new BlockAdded(block));
     }
 
     private Block CreateBlock(int proof)
