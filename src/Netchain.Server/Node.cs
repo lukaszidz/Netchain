@@ -9,7 +9,7 @@ public sealed class Node
     private readonly Blockchain _blockchain;
     private readonly Dictionary<string, Peer> _peers = [];
     private readonly NodeClient _nodeClient;
-    private readonly ILogger _logger;
+    private readonly ILogger<Node> _logger;
 
     public IEnumerable<Peer> Peers => _peers.Select(p => p.Value);
 
@@ -43,19 +43,9 @@ public sealed class Node
         }
     }
 
-    public async Task MergeBlock(Block block)
+    public void MergeBlock(Block block)
     {
-        if (block.Index <= _blockchain.LastBlock.Index)
-        {
-            _logger.LogInformation("Received blockchain is shorter than the current blockchain. No actions required");
-            return;
-        }
-
-        if (_blockchain.LastBlock.Hash.Equals(block.PreviousHash))
-        {
-            await _blockchain.AppendBlock(block);
-            _logger.LogInformation("Received block {BlockIndex} has been added to the blockchain", block.Index);
-        };
+        _blockchain.MergeBlock(block);
     }
 
     private void SubscribeBlockchain()
