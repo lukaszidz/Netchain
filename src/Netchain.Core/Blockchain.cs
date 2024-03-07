@@ -15,7 +15,8 @@ public sealed class Blockchain
     public IEnumerable<Transaction> Transactions => _transactions;
     public IEnumerable<Block> Blocks => _chain;
 
-    public event AsyncEventHandler<BlockAdded> BlockAdded;
+    public event EventHandler<BlockAdded> BlockAdded;
+    public event EventHandler<TransactionAdded> TransactionAdded;
 
     public Blockchain(ILogger<Blockchain> logger)
     {
@@ -59,6 +60,7 @@ public sealed class Blockchain
             throw new ArgumentException(string.Format("Blockchain already contains the transaction {0}", transaction.Id));
         }
         _transactions.Add(transaction);
+        TransactionAdded?.Invoke(this, new TransactionAdded(transaction));
     }
 
     public void AppendBlock(Block block)

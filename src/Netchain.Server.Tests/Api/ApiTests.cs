@@ -29,7 +29,7 @@ public sealed class ApiTests : IDisposable
     }
 
     [Fact]
-    public async Task Given_AnyBlockchain_When_PutLastBlock_Then_BlockAdded()
+    public async Task Given_AnyBlockchain_When_PostLastBlock_Then_BlockAdded()
     {
         // Arrange
         var oldBlock = await _testHttp.Get<BlockResponse>(WebRoutes.LastBlock);
@@ -43,7 +43,7 @@ public sealed class ApiTests : IDisposable
         };
 
         // Act
-        await _testHttp.Put(WebRoutes.LastBlock, newBlock);
+        await _testHttp.Post(WebRoutes.LastBlock, newBlock);
 
         // Assert
         var lastBlock = await _testHttp.Get<BlockResponse>(WebRoutes.LastBlock);

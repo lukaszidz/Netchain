@@ -31,10 +31,16 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
         return Get<Block>($"{peer.Url}/{WebRoutes.LastBlock}");
     }
 
-    public Task UpdateLastBlock(Peer peer, Block block)
+    public Task SendLastBlock(Peer peer, Block block)
     {
-        _logger.LogInformation("Updating the latest block for the peer {Url}", peer.Url);
-        return Put($"{peer.Url}/{WebRoutes.LastBlock}", block);
+        _logger.LogInformation("Sending the latest block for the peer {Url}", peer.Url);
+        return Post($"{peer.Url}/{WebRoutes.LastBlock}", block);
+    }
+
+    public Task SendTransaction(Peer peer, Transaction transaction)
+    {
+        _logger.LogInformation("Sending the transaction for the peer {Url}", peer.Url);
+        return Post($"{peer.Url}/{WebRoutes.Transactions}", transaction);
     }
 
     public Task<IEnumerable<Transaction>> GetTransactions(Peer peer)
@@ -43,7 +49,7 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
         return Get<IEnumerable<Transaction>>($"{peer.Url}/{WebRoutes.Transactions}");
     }
 
-    private async Task<T> Get<T>(string url) => await _httpClient.GetFromJsonAsync<T>(url);
-    private async Task Post<T>(string url, T body) => await _httpClient.PostAsJsonAsync(url, body);
-    private async Task Put<T>(string url, T body) => await _httpClient.PutAsJsonAsync(url, body);
+    private Task<T> Get<T>(string url) => _httpClient.GetFromJsonAsync<T>(url);
+    private Task Post<T>(string url, T body) => _httpClient.PostAsJsonAsync(url, body);
+    private Task Put<T>(string url, T body) => _httpClient.PutAsJsonAsync(url, body);
 }
