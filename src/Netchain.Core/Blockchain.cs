@@ -57,7 +57,8 @@ public sealed class Blockchain
     {
         if (_transactions.Contains(transaction))
         {
-            throw new ArgumentException(string.Format("Blockchain already contains the transaction {0}", transaction.Id));
+            _logger.LogInformation("Blockchain already contains the transaction {TransactionId}", transaction.Id);
+            return;
         }
         _transactions.Add(transaction);
         TransactionAdded?.Invoke(this, new TransactionAdded(transaction));

@@ -1,5 +1,6 @@
 using Netchain.Core;
 using Netchain.Server.Constants;
+using Netchain.Server.Responses;
 
 namespace Netchain.Server.Client;
 
@@ -25,10 +26,10 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
         });
     }
 
-    public Task<Block> GetLastBlock(Peer peer)
+    public Task<BlockResponse> GetLastBlock(Peer peer)
     {
         _logger.LogInformation("Getting the latest block of the peer {Url}", peer.Url);
-        return Get<Block>($"{peer.Url}/{WebRoutes.LastBlock}");
+        return Get<BlockResponse>($"{peer.Url}/{WebRoutes.LastBlock}");
     }
 
     public Task SendLastBlock(Peer peer, Block block)

@@ -78,7 +78,8 @@ public sealed class Node
 
     private async Task MergePeerLastBlock(Peer peer)
     {
-        var lastBlock = await _nodeClient.GetLastBlock(peer);
+        var response = await _nodeClient.GetLastBlock(peer);
+        var lastBlock = Block.FromExisting(response.Index, response.Timestamp.Value, response.PreviousHash, response.Hash, response.Proof, response.Transactions.ToHashSet());
         MergeBlock(lastBlock);
     }
 
@@ -87,11 +88,7 @@ public sealed class Node
         var transactions = await _nodeClient.GetTransactions(peer);
         foreach (var transaction in transactions)
         {
-            if (!_blockchain.Transactions.Contains(transaction))
-            {
-                _logger.LogInformation("Received transaction {TransactionId} has beed added to the blockchain", transaction.Id);
-                _blockchain.AppendTransaction(transaction);
-            }
+            _blockchain.AppendTransaction(transaction);
         }
     }
 }
