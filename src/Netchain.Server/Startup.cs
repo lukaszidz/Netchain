@@ -56,7 +56,7 @@ public class Startup
                     Transactions = lastBlock.Transactions
                 });
             });
-            e.MapPut(WebRoutes.LastBlock, (Node node, [FromBody] AddBlockRequest block) =>
+            e.MapPost(WebRoutes.LastBlock, (Node node, [FromBody] AddBlockRequest block) =>
             {
                 node.MergeBlock(new Block(block.Index, block.Timestamp, block.PreviousHash, block.Proof, block.Transactions));
                 return Results.Ok();
@@ -77,9 +77,9 @@ public class Startup
                 });
                 return Results.Ok(transactions);
             });
-            e.MapPost(WebRoutes.Transactions, (Blockchain chain, [FromBody] Transaction transaction) =>
+            e.MapPost(WebRoutes.Transactions, (Node node, [FromBody] Transaction transaction) =>
             {
-                chain.AppendTransaction(transaction);
+                node.MergeTransaction(transaction);
                 return Results.Created();
             });
             e.MapGet(WebRoutes.Peers, (Node node) =>
