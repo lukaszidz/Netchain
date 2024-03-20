@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Netchain.Core;
 using Netchain.Core.Events;
 using Netchain.Server.Client;
@@ -7,7 +8,7 @@ namespace Netchain.Server;
 public sealed class Node
 {
     private readonly Blockchain _blockchain;
-    private readonly Dictionary<string, Peer> _peers = [];
+    private readonly ConcurrentDictionary<string, Peer> _peers = [];
     private readonly NodeClient _nodeClient;
     private readonly ILogger<Node> _logger;
 
@@ -25,22 +26,31 @@ public sealed class Node
         SubscribeBlockchain();
     }
 
-    public async void ConnectToPeers(IEnumerable<Peer> newPeers)
+    public async Task ConnectToPeers(IEnumerable<Peer> newPeers)
     {
-        foreach (var peer in newPeers)
+        var tasks = newPeers.Select(async peer =>
         {
             if (!_peers.ContainsKey(peer.Url))
             {
                 _peers[peer.Url] = peer;
                 NotifyPeer(peer);
-                await MergePeerLastBlock(peer);
-                await MergePeerTransactions(peer);
+
+                try
+                {
+                    await Task.WhenAll(MergePeerLastBlock(peer), MergePeerTransactions(peer));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error while merging with peer {PeerUrl}", peer.Url);
+                }
             }
             else
             {
                 _logger.LogInformation("The {SourceNode} already knows about the {TargetNode}", Address, peer.Url);
             }
-        }
+        });
+
+        await Task.WhenAll(tasks);
     }
 
     public void MergeBlock(Block block)
@@ -71,10 +81,7 @@ public sealed class Node
         Task.WaitAll(tasks.ToArray());
     }
 
-    private void NotifyPeer(Peer peer)
-    {
-        _nodeClient.Notify(new Peer(Address), peer);
-    }
+    private void NotifyPeer(Peer peer) => _nodeClient.Notify(new Peer(Address), peer);
 
     private async Task MergePeerLastBlock(Peer peer)
     {

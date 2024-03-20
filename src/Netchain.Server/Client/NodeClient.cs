@@ -9,21 +9,10 @@ public sealed class NodeClient(HttpClient httpClient, ILogger<NodeClient> logger
     private readonly HttpClient _httpClient = httpClient;
     private readonly ILogger<NodeClient> _logger = logger;
 
-    public async void Notify(Peer source, Peer target)
+    public Task Notify(Peer source, Peer target)
     {
         _logger.LogInformation("Started notifying the peer {Url}", target.Url);
-
-        await Task.Run(async () =>
-        {
-            try
-            {
-                await Post($"{target.Url}/{WebRoutes.Peers}", source);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning("Couldn't notify the {Peer}. {Message}", target.Url, ex.Message);
-            }
-        });
+        return Post($"{target.Url}/{WebRoutes.Peers}", source);
     }
 
     public Task<BlockResponse> GetLastBlock(Peer peer)

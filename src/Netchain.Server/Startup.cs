@@ -25,7 +25,7 @@ public class Startup
             var logger = sp.GetRequiredService<ILogger<Node>>();
 
             var node = new Node(Environment.GetEnvironmentVariable("BaseUrl"), blockchain, nodeClient, logger);
-            node.ConnectToPeers(Env.GetEnvironmentValues("Peers").Select(url => new Peer(url)));
+            node.ConnectToPeers(Env.GetEnvironmentValues("Peers").Select(url => new Peer(url))).GetAwaiter().GetResult();
             return node;
         });
     }
@@ -86,9 +86,9 @@ public class Startup
             {
                 return Results.Ok(node.Peers);
             });
-            e.MapPost(WebRoutes.Peers, (Node node, [FromBody] Peer peer) =>
+            e.MapPost(WebRoutes.Peers, async (Node node, [FromBody] Peer peer) =>
             {
-                node.ConnectToPeers([peer]);
+                await node.ConnectToPeers([peer]);
                 return Results.Ok();
             });
         });
